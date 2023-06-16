@@ -29,15 +29,19 @@ class _TodoListPageState extends State<TodoListPage> {
         title: Text('Todo List'),
         centerTitle: true,
       ),
-      body: ListView.builder(
-        itemCount: items.length,
-        itemBuilder: (BuildContext context, int index) {
-          var item = items[index];
-          return ListTile(
-            title: Text(item['title']),
-            subtitle: Text(item['description']),
-          );
-        },
+      body: RefreshIndicator(
+        onRefresh: fetchData,
+        child: ListView.builder(
+          itemCount: items.length,
+          itemBuilder: (BuildContext context, int index) {
+            var item = items[index];
+            return ListTile(
+              leading: CircleAvatar(child: Text('${index + 1}'),),
+              title: Text(item['title']),
+              subtitle: Text(item['description']),
+            );
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
