@@ -16,38 +16,67 @@ class _TodoListPageState extends State<TodoListPage> {
 
   List items = [];
 
+  bool isLoading = true;
+
   @override
   void initState() {
     super.initState();
     fetchData();
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Todo List'),
+        title: Text('TodoList'),
         centerTitle: true,
       ),
-      body: RefreshIndicator(
-        onRefresh: fetchData,
-        child: ListView.builder(
-          itemCount: items.length,
-          itemBuilder: (BuildContext context, int index) {
-            var item = items[index];
-            return ListTile(
-              leading: CircleAvatar(child: Text('${index + 1}'),),
-              title: Text(item['title']),
-              subtitle: Text(item['description']),
-            );
-          },
+      body: Visibility(
+        visible: isLoading,
+        child: Center(child: CircularProgressIndicator()),
+        replacement: RefreshIndicator(
+          onRefresh: fetchData,
+          child: ListView.builder(
+            itemCount: items.length,
+            itemBuilder: (BuildContext context, int index){
+              final item = items[index];
+              final id = item['_id'];
+              return ListTile(
+                leading: CircleAvatar(child: Text('${index + 1}'),),
+                title: Text(item['title']),
+                subtitle: Text(item['description']),
+                trailing: PopupMenuButton(
+                  onSelected: (value) {
+                    if(value == 'edit') {
+
+                    } else if(value == 'delete') {
+                      deleteById(id);
+                    }
+                  },
+                  itemBuilder: (context) {
+                    return [
+                      PopupMenuItem(
+                        child: Text('Edit'),
+                        value: 'edit',
+                      ),
+                      PopupMenuItem(
+                        child: Text('Delete'),
+                        value: 'delete',
+                      )
+                    ];
+                  },
+                ),
+              );
+            },
+          ),
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          navigateAddPage(context);
-        },
-        label: Text('Add todo'),
+          onPressed: () {
+            navigateAddPage(context);
+          },
+          label: Text('Add todo')
       ),
     );
   }
@@ -57,16 +86,52 @@ class _TodoListPageState extends State<TodoListPage> {
     Navigator.push(context, route);
   }
 
+  
+
   Future<void> fetchData() async {
-    final url = 'http://api.nstack.in/v1/todos';
+    setState(() {
+      isLoading = true;
+    });
+    final url = 'http://api.nstack.in/v1/todos?page=1&limit=10';
     final uri = Uri.parse(url);
     final response = await http.get(uri);
     if(response.statusCode == 200) {
-      var json = jsonDecode(response.body) as Map;
-      var result = json['items'];
+      final body = jsonDecode(response.body) as Map;
+      final result = body['items'] as List;
       setState(() {
         items = result;
       });
     }
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+
+
+
+  Future<void> deleteById(id) async {
+    final url = 'http://api.nstack.in/v1/todos/${id}';
+    final uri = Uri.parse(url);
+    final response = await http.delete(uri);
+    if(response.statusCode == 200) {
+      final filtrated = items.where((element) => element['_id'] != id).toList();
+      setState(() {
+        items = filtrated;
+      });
+    } else {
+      showErrorMessage('Unable to delete');
+    }
+  }
+
+
+  void showErrorMessage(String message) {
+    final snackBar = SnackBar(
+      content: Text(message, style: TextStyle(
+        color: Colors.white,
+      ),),
+      backgroundColor: Colors.red,
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 }

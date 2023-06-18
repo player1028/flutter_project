@@ -2,8 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:untitled/screens/todolist.dart';
-import 'package:untitled/screens/todolist.dart';
 
 
 class AddTodoPage extends StatefulWidget {
@@ -16,8 +14,7 @@ class AddTodoPage extends StatefulWidget {
 class _AddTodoPageState extends State<AddTodoPage> {
 
   TextEditingController titleController = TextEditingController();
-  TextEditingController describeController = TextEditingController();
-
+  TextEditingController descriptionController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -27,16 +24,16 @@ class _AddTodoPageState extends State<AddTodoPage> {
         centerTitle: true,
       ),
       body: ListView(
-        padding: EdgeInsets.all(20),
+        padding: EdgeInsets.all(16),
         children: [
           TextField(
-            decoration: InputDecoration(hintText: 'Title'),
             controller: titleController,
+            decoration: InputDecoration(hintText: 'Title'),
           ),
           TextField(
-            decoration: InputDecoration(hintText: 'Describe'),
+            decoration: InputDecoration(hintText: 'Description'),
+            controller: descriptionController,
             keyboardType: TextInputType.multiline,
-            controller: describeController,
             minLines: 5,
             maxLines: 8,
           ),
@@ -53,46 +50,46 @@ class _AddTodoPageState extends State<AddTodoPage> {
 
   Future<void> postData() async {
     final title = titleController.text;
-    final description = describeController.text;
+    final description = descriptionController.text;
     final body = {
       'title': title,
       'description': description,
-      'is_completed': false,
+      'is_completed': false
     };
 
     final url = 'http://api.nstack.in/v1/todos';
     final uri = Uri.parse(url);
     final response = await http.post(
-        uri,
-        body: jsonEncode(body),
-        headers: {
-          'Content-Type': 'application/json'
-        }
+      uri,
+      body: jsonEncode(body),
+      headers: {
+        'Content-Type': 'application/json'
+      }
     );
-
-
-    void showSuccessMessage(String message) {
+    if (response.statusCode == 201) {
       titleController.text = '';
-      describeController.text = '';
-      final snackBar = SnackBar(content: Text(message));
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-    }
-
-
-    void showErrorMessage(String message) {
-      final snackBar = SnackBar(content: Text(message,
-        style: TextStyle(color: Colors.white),
-      ), backgroundColor: Colors.red,);
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-    }
-
-
-    if(response.statusCode == 201) {
+      descriptionController.text = '';
       showSuccessMessage('Success');
     } else {
       showErrorMessage('Error');
     }
+  }
 
 
+
+  void showSuccessMessage(String message) {
+    final snackBar = SnackBar(content: Text(message));
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+
+  void showErrorMessage(String message) {
+    final snackBar = SnackBar(
+      content: Text(message, style: TextStyle(
+        color: Colors.white,
+      ),),
+      backgroundColor: Colors.red,
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 }
