@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/screens/todolist.dart';
-
-
-
-
+import 'package:untitled/screens/home_page.dart';
 
 
 void main() => runApp(MyApp());
@@ -16,9 +12,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      color: Colors.red,
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark(),
-      home: TodoListPage(),
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSwatch(
+          primarySwatch: Colors.purple
+        )
+      ),
+      home: HomePage(),
     );
   }
 }
