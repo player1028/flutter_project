@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 
 
-class ElevatedButtonTextStyle extends StatelessWidget {
+class TopTextStyle extends StatelessWidget {
   final String text;
 
-  const ElevatedButtonTextStyle(
+  const TopTextStyle(
    this.text
   );
 
@@ -19,4 +19,6 @@ class ElevatedButtonTextStyle extends StatelessWidget {
     );
   }
 }
+
+
 
