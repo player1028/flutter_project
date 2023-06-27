@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:untitled/screens/home_page.dart';
+import 'package:untitled/screens/favorites_page.dart';
 
 
 void main() => runApp(MyApp());
@@ -19,7 +20,11 @@ class MyApp extends StatelessWidget {
           seedColor: Colors.purple,
         )
       ),
-      home: HomePage(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => HomePage(),
+        '/favorites/': (context) => FavoritesPage(),
+      },
     );
   }
 }

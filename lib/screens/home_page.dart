@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:untitled/widgets/drawer.dart';
 import 'package:untitled/widgets/big_card.dart';
 import 'package:english_words/english_words.dart';
-import 'package:untitled/style/text_style.dart';
+import 'package:http/http.dart' as http;
+import 'package:untitled/screens/auth_page.dart';
 
 
 
@@ -14,7 +17,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
+  bool isLiked = false;
+  Icon icon = Icon(Icons.favorite_border);
   String pair = '';
 
   void newRandomWord() {
@@ -24,11 +28,42 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  void setFavoriteOutlined() {
+    setState(() {
+      icon = Icon(Icons.favorite_border);
+    });
+  }
+
+
   @override
   void initState() {
     super.initState();
     newRandomWord();
   }
+
+
+
+
+  void likeWord() {
+    if(isLiked != true) {
+      setState(() {
+        icon = Icon(Icons.favorite);
+        isLiked = true;
+      });
+    } else {
+      setState(() {
+        setFavoriteOutlined();
+        isLiked = false;
+      });
+    }
+  }
+
+
+  void isLogged() {
+
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +71,11 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: Text('Add page'),
         centerTitle: true,
+        actions: [
+          IconButton(onPressed: (){
+
+          }, icon: Icon(Icons.login))
+        ],
       ),
       drawer: DrawerWidget(),
       body: Center(
@@ -51,7 +91,16 @@ class _HomePageState extends State<HomePage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                ElevatedButton.icon(onPressed: (){
+                  likeWord();
+                }, label: Text('Like'),
+                icon: icon,),
+                SizedBox(width: 20,),
                 ElevatedButton(onPressed: () {
+                  if(isLiked) {
+                    postData(pair);
+                  }
+                  setFavoriteOutlined();
                   newRandomWord();
                 }, child: Text('Next'))
               ],
@@ -60,6 +109,30 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
+  }
+
+
+
+  Future<void> postData(String word) async {
+    final url = 'http://10.0.2.2:8000/api/def/';
+    final uri = Uri.parse(url);
+    final body = {
+      'word': word
+    };
+
+
+    final response = await http.post(
+      uri,
+      body: jsonEncode(body),
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    );
+    if(response.statusCode == 201){
+      print('Success');
+    } else {
+      print('Error');
+    }
   }
 }
 

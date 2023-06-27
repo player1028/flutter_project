@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:untitled/screens/favorites_page.dart';
 import 'package:untitled/screens/home_page.dart';
 import 'package:untitled/style/text_style.dart';
 import 'package:untitled/main.dart';
@@ -15,7 +16,7 @@ class DrawerWidget extends StatelessWidget {
         children: [
           DrawerHeader(
             child: CircleAvatar(
-              child: Image.asset('images/account.png', height: 170, width: 170,),
+              child: Text('hello'),
               backgroundColor: Colors.white,
             ),
           ),
@@ -39,10 +40,13 @@ class DrawerWidget extends StatelessWidget {
             child: ElevatedButton(
               child: ListTile(
                 title: TopTextStyle(
-                    'todo'
+                    'Favorites'
                 ),
               ),
-              onPressed: (){},
+              onPressed: (){
+                final route = MaterialPageRoute(builder: (context) => FavoritesPage());
+                Navigator.push(context, route);
+              },
             ),
           ),
         ],
