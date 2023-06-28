@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:untitled/widgets/drawer.dart';
 import 'package:untitled/style/text_style.dart';
 import 'package:untitled/screens/auth_page.dart';
+import 'package:untitled/services/token_manager.dart';
 
 
 
@@ -27,6 +28,8 @@ class _FavoritesPageState extends State<FavoritesPage> {
   }
 
 
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,7 +44,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
           itemCount: items.length,
           itemBuilder: (BuildContext context, int index){
             final item = items[index];
-            final id = item['id'].toString();
+            final id = item['id'];
             return ListTile(
               title: Container(
                 child: Row(
@@ -67,26 +70,36 @@ class _FavoritesPageState extends State<FavoritesPage> {
     );
   }
 
-  Future<void> deleteByID(String id) async {
+  Future<void> deleteByID(int id) async {
+    String? token = await TokenManager.getToken();
     final url = 'http://10.0.2.2:8000/api/del/${id}/';
     final uri = Uri.parse(url);
-    final response = await http.delete(uri);
+    final response = await http.delete(
+      uri,
+      headers: {
+        'Authorization': 'Token $token'
+      }
+    );
 
     if(response.statusCode==204) {
-      print('Succes');
+      List filtrated = items.where((element) => element['id'] != id).toList();
+      setState(() {
+        items = filtrated;
+      });
     } else {
-      showErrorMessage('Can\' delete');
+      showErrorMessage('Can\'t delete');
     }
   }
 
 
   Future<void> fetchRandword() async {
+    String? token = await TokenManager.getToken();
     final url = 'http://10.0.2.2:8000/api/def/';
     final uri = Uri.parse(url);
     final response = await http.get(
         uri,
         headers: {
-          'Authorization': 'Token d57320e5a9d6eff523f7fd41754d711c10ddf7ff',
+          'Authorization': 'Token $token',
         }
     );
     print(response.statusCode);

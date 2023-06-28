@@ -5,7 +5,8 @@ import 'package:untitled/widgets/drawer.dart';
 import 'package:untitled/widgets/big_card.dart';
 import 'package:english_words/english_words.dart';
 import 'package:http/http.dart' as http;
-import 'package:untitled/screens/auth_page.dart';
+import 'package:untitled/services/navigateToLogPage.dart';
+import 'package:untitled/services/token_manager.dart';
 
 
 
@@ -31,6 +32,7 @@ class _HomePageState extends State<HomePage> {
   void setFavoriteOutlined() {
     setState(() {
       icon = Icon(Icons.favorite_border);
+      isLiked = false;
     });
   }
 
@@ -73,7 +75,7 @@ class _HomePageState extends State<HomePage> {
         centerTitle: true,
         actions: [
           IconButton(onPressed: (){
-
+            navigateToAuthPage(context);
           }, icon: Icon(Icons.login))
         ],
       ),
@@ -114,6 +116,8 @@ class _HomePageState extends State<HomePage> {
 
 
   Future<void> postData(String word) async {
+    String? token = await TokenManager.getToken();
+
     final url = 'http://10.0.2.2:8000/api/def/';
     final uri = Uri.parse(url);
     final body = {
@@ -126,6 +130,7 @@ class _HomePageState extends State<HomePage> {
       body: jsonEncode(body),
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': 'Token $token',
       }
     );
     if(response.statusCode == 201){

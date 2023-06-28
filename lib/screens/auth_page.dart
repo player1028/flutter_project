@@ -2,8 +2,10 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:untitled/services/token_manager.dart';
 
 
+String token = '';
 
 
 class AuthPage extends StatefulWidget {
@@ -15,11 +17,12 @@ class AuthPage extends StatefulWidget {
 
 class _AuthPageState extends State<AuthPage> {
 
-  int? token;
-
+  bool _isObscure = true;
+  Icon icon = Icon(Icons.visibility_off);
 
   TextEditingController loginController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+
 
 
   @override
@@ -30,15 +33,31 @@ class _AuthPageState extends State<AuthPage> {
         centerTitle: true,
       ),
       body: ListView(
+        padding: EdgeInsets.all(16),
         children: [
           TextField(
             decoration: InputDecoration(hintText: 'Login'),
             controller: loginController,
           ),
           TextField(
-            decoration: InputDecoration(hintText: 'Password'),
+            obscureText: _isObscure,
+            obscuringCharacter: '*',
             controller: passwordController,
-          )
+            decoration: InputDecoration(hintText: 'Password', suffixIcon: GestureDetector(
+              onTap: (){
+                setState(() {
+                  _isObscure = !_isObscure;
+                });
+              },
+              child: _isObscure ? Icon(Icons.visibility_off, color: Colors.grey,) :
+              Icon(Icons.visibility, color: Colors.grey,),
+            )
+            ),
+          ),
+          SizedBox(height: 20,),
+          ElevatedButton(onPressed: () {
+            login();
+          }, child: Text('Log in'))
         ],
       ),
     );
@@ -52,10 +71,14 @@ class _AuthPageState extends State<AuthPage> {
       'password': password,
     };
 
-    final url = 'http://10.0.2.2:8000/auth/token/login';
+    final url = 'http://10.0.2.2:8000/auth/token/login/';
     final uri = Uri.parse(url);
     final response = await http.post(
       uri,
+      body: jsonEncode(body),
+      headers: {
+        'Content-Type': 'application/json'
+      }
     );
 
     if(response.statusCode == 200) {
@@ -64,7 +87,9 @@ class _AuthPageState extends State<AuthPage> {
       setState(() {
         token = json;
       });
-      print('token');
+      print('$token');
+      await TokenManager.saveToken(token);
+      print('Ok');
     } else {
       print('Error');
     }
